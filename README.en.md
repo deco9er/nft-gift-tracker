@@ -13,6 +13,13 @@ A Telegram bot for monitoring collectible gift listings on Telegram Market. A si
 
 ## Configuration
 
+Download the ZIP from [Releases](https://github.com/deco9er/nft-gift-tracker/releases) or clone the repository.
+
+```bash
+git clone https://github.com/deco9er/nft-gift-tracker.git
+cd nft-gift-tracker
+```
+
 Use Python 3.10–3.14. Copy `.env.example` to `.env` for a fresh installation and fill in these settings.
 
 | Setting | Where to get it |
@@ -114,6 +121,10 @@ sudo journalctl -u nft-gift-tracker -f
 
 Use `sudo systemctl restart nft-gift-tracker` after changing configuration. Payment polling requires outbound access to Telegram and Crypto Pay.
 
+## First run
+
+Open the bot in Telegram and send `/start`. As an admin, open `/live` to see the catalog and scan progress. Run `/group` to set up the forum and its topics. Send `/start` from a regular account to check the onboarding and access menu.
+
 ## Payments and access
 
 Plans are **1 day for 1.5 TON**, **3 days for 4 TON**, and **7 days for 10 TON**. The bot sends a **Pay** button that opens the invoice in Crypto Bot. When Crypto Pay confirms payment, the bot credits access and sends a confirmation. It normally checks invoices every 15 seconds. [Crypto Pay API documentation](https://help.cr.bot/en/articles/10279948-crypto-pay-api)
@@ -142,4 +153,4 @@ For the user session, `TELEGRAM_PROXY=socks5://user:password@host:port` configur
 
 ## Provenance
 
-The tracker is based on a source snapshot from Moon's portfolio. See [PUBLICATION.md](PUBLICATION.md) for provenance and publication details.
+The tracker is based on a source snapshot from Moon's portfolio. See [PUBLICATION.md](PUBLICATION.md) for details.
