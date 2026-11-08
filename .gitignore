@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.session*
+catalog.sqlite3*
+access*.sqlite3*
+tracker.lock
+tracker.log*

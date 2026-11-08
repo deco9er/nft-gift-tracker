@@ -1,0 +1,5 @@
+aiogram==3.31.0
+aiohttp==3.14.5
+python-dotenv==1.2.1
+python-socks[asyncio]==3.2.1
+Telethon==1.45.0
