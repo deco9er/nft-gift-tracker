@@ -34,9 +34,6 @@ from constants import (
     portals_gifts_data, mrkt_gifts_data, tmarket_gifts_data
 )
 
-# ──────────────────────────────────────────────
-# FSM
-# ──────────────────────────────────────────────
 class AdminState(StatesGroup):
     waiting_fp_star_price        = State()
     waiting_tg_market_commission = State()
@@ -45,9 +42,6 @@ class AdminState(StatesGroup):
     waiting_ton_balance          = State()
     waiting_min_profit           = State()
 
-# ──────────────────────────────────────────────
-# НАСТРОЙКИ
-# ──────────────────────────────────────────────
 settings = {
     "fp_star_price":        DEFAULT_FP_STAR_PRICE,
     "tg_market_commission": DEFAULT_TG_MARKET_COMMISSION,
@@ -66,9 +60,6 @@ bot             = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=P
 dp              = Dispatcher(storage=MemoryStorage())
 pyrogram_client = Client("main", api_id=API_ID, api_hash=API_HASH)
 
-# ──────────────────────────────────────────────
-# УТИЛИТЫ
-# ──────────────────────────────────────────────
 def e(emoji_id: str, fallback: str = "•") -> str:
     """Премиум эмодзи для сообщений"""
     return f'<tg-emoji emoji-id="{emoji_id}">{fallback}</tg-emoji>'
@@ -98,9 +89,6 @@ def split_text(text: str, limit: int = 4096) -> list:
         messages.append(current)
     return messages
 
-# ──────────────────────────────────────────────
-# КЛАВИАТУРЫ
-# ──────────────────────────────────────────────
 def kb_main() -> InlineKeyboardMarkup:
     bal = settings["ton_balance"]
     return InlineKeyboardMarkup(inline_keyboard=[
@@ -155,18 +143,6 @@ def kb_admin() -> InlineKeyboardMarkup:
                               icon_custom_emoji_id="5893057118545646106")],
     ])
 
-# ──────────────────────────────────────────────
-# РАСЧЁТ ПРИБЫЛИ
-#   cost_ton    = buy_ton + withdraw_fee_ton
-#   count       = int(balance / cost_ton)
-#   tba         = cost_ton × count
-#   sp_net      = stars × (1 − tg_comm) × fp_price        (₽ с 1 подарка)
-#   revenue_rub = sp_net × count
-#   fee_rub     = max(revenue_rub × 6%, 150)              (вывод на ФП)
-#   usdt        = (revenue_rub − fee_rub) / fp_usdt_rate
-#   ton_out     = usdt / ton_usd                          (своп в TON)
-#   profit      = ton_out − tba
-# ──────────────────────────────────────────────
 def calculate_profit(buy_ton: float, stars: int, ton_rub: float, ton_usd: float, withdraw_fee_ton: float) -> dict:
     fp_price   = settings["fp_star_price"]
     tg_comm    = settings["tg_market_commission"]
@@ -216,9 +192,6 @@ def calculate_profit(buy_ton: float, stars: int, ton_rub: float, ton_usd: float,
         "tba":          round(tba, 4),
     }
 
-# ──────────────────────────────────────────────
-# ТЕКСТ ТОПА
-# ──────────────────────────────────────────────
 async def build_top_text(market: str):
     market_data  = portals_gifts_data if market == "portals" else mrkt_gifts_data
     fee          = settings["portals_withdraw_fee"] if market == "portals" else settings["mrkt_withdraw_fee"]
@@ -280,9 +253,6 @@ async def build_top_text(market: str):
 
     return text
 
-# ──────────────────────────────────────────────
-# ХЭНДЛЕР СТАРТ
-# ──────────────────────────────────────────────
 @dp.message(CommandStart())
 async def cmd_start(message: Message):
     await message.answer(
@@ -308,9 +278,6 @@ async def send_top(target, market: str):
     for part in parts[1:]:
         await (target.answer if is_msg else target.message.answer)(part)
 
-# ──────────────────────────────────────────────
-# CALLBACK
-# ──────────────────────────────────────────────
 @dp.callback_query()
 async def callback_handler(call: CallbackQuery, state: FSMContext):
     d   = call.data
@@ -394,9 +361,6 @@ async def callback_handler(call: CallbackQuery, state: FSMContext):
 
     await call.answer()
 
-# ──────────────────────────────────────────────
-# FSM ХЭНДЛЕРЫ
-# ──────────────────────────────────────────────
 async def _bad(msg: Message):
     await msg.answer(f'{e("5870657884844462243","❌")} Отправь корректное число.')
 
@@ -474,9 +438,6 @@ async def fsm_min_profit(message: Message, state: FSMContext):
     except ValueError:
         await _bad(message)
 
-# ──────────────────────────────────────────────
-# ПАРСЕРЫ
-# ──────────────────────────────────────────────
 def get_gifts_mapping(only_names: bool = True):
     r = curl_requests.get("https://cdn.changes.tg/gifts/id-to-name.json", verify=True)
     return [v for v in r.json().values()] if only_names else r.json()
@@ -530,7 +491,6 @@ async def parse_tmarket():
                 resell = getattr(raw, "resell_amount", None)
                 if not resell:
                     continue
-                # Ищем StarsAmount (цена в звёздах, не TON)
                 stars = None
                 for item in resell:
                     type_name = type(item).__name__
@@ -608,10 +568,6 @@ async def fetch_mrkt_token() -> str | None:
         print("[MRKT токен] Ошибка:", ex)
         return None
 
-# ──────────────────────────────────────────────
-# ГЛАВНЫЙ ЦИКЛ ПАРСИНГА
-# Pyrogram запускается ОДИН РАЗ и не закрывается
-# ──────────────────────────────────────────────
 async def parse_loop():
     global mrkt_token
 
@@ -639,9 +595,6 @@ async def parse_loop():
 
         await asyncio.sleep(20)
 
-# ──────────────────────────────────────────────
-# ЗАПУСК
-# ──────────────────────────────────────────────
 async def main():
     asyncio.create_task(parse_loop())
     await dp.start_polling(bot)

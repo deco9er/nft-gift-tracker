@@ -33,7 +33,10 @@ FLOORS = {
 def floor_category(floor: float | None) -> str:
     if floor is None:
         return ""
-    return next((label for label, minimum, maximum in FLOORS.values() if minimum < floor <= maximum), "")
+    for label, minimum, maximum in FLOORS.values():
+        if minimum < floor <= maximum:
+            return label
+    return ""
 
 
 SORTS = {
